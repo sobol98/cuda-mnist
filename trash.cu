@@ -255,34 +255,6 @@ void freeNetwork(NetworkParams &params) {
     cudaFree(params.fc2_output);
 }
 
-// Funkcja forward pass
-void forward(float *input, NetworkParams &params, int batch_size) {
-    dim3 conv1_grid(IMG_SIZE * IMG_SIZE, 32, batch_size);
-    conv2d<<<conv1_grid, 1>>>(input, params.conv1_output, params.conv1_weights, 
-                             params.conv1_bias, batch_size, 1, 32, IMG_SIZE, 3);
-    
-    dim3 conv2_grid(26 * 26, 64, batch_size);
-    conv2d<<<conv2_grid, 1>>>(params.conv1_output, params.conv2_output, 
-                             params.conv2_weights, params.conv2_bias, 
-                             batch_size, 32, 64, 26, 3);
-    
-    dim3 pool_grid(12 * 12, 64, batch_size);
-    maxpool2d<<<pool_grid, 1>>>(params.conv2_output, params.pool_output, 
-                               batch_size, 64, 24, 2);
-    
-    dim3 fc1_grid(128, batch_size);
-    linear<<<fc1_grid, 1>>>(params.pool_output, params.fc1_output, 
-                           params.fc1_weights, params.fc1_bias, 
-                           batch_size, 9216, 128);
-    
-    dim3 fc2_grid(10, batch_size);
-    linear<<<fc2_grid, 1>>>(params.fc1_output, params.fc2_output, 
-                           params.fc2_weights, params.fc2_bias, 
-                           batch_size, 128, 10);
-    
-    softmax<<<batch_size, 1>>>(params.fc2_output, params.fc2_output, 
-                              batch_size, 10);
-}
 
 
 
